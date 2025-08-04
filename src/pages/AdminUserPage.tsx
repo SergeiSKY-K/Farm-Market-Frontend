@@ -11,7 +11,7 @@ type User = {
 const AdminUsersPage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [error, setError] = useState('');
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
 
     const fetchUsers = async () => {
         try {
@@ -45,7 +45,7 @@ const AdminUsersPage = () => {
         fetchUsers();
     }, []);
 
-    if (role !== 'ADMIN') return <div>No access</div>;
+    if (!roles.includes('ADMIN')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>

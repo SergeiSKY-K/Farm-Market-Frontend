@@ -1,14 +1,15 @@
 // src/store/slices/authSlice.ts
+
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 type AuthState = {
     accessToken: string | null;
-    role: 'USER' | 'SUPPLIER' | 'MODERATOR' | 'ADMIN' | null;
+    roles: string[]; // теперь массив строк
 };
 
 const initialState: AuthState = {
     accessToken: null,
-    role: null,
+    roles: [],
 };
 
 const authSlice = createSlice({
@@ -17,11 +18,11 @@ const authSlice = createSlice({
     reducers: {
         setAuth(state, action: PayloadAction<AuthState>) {
             state.accessToken = action.payload.accessToken;
-            state.role = action.payload.role;
+            state.roles = action.payload.roles;
         },
         logout(state) {
             state.accessToken = null;
-            state.role = null;
+            state.roles = [];
         },
     },
 });

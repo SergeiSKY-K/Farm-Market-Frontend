@@ -14,7 +14,7 @@ const allRoles = ['USER', 'SUPPLIER', 'MODERATOR', 'ADMINISTRATOR'];
 const ManageRolesPage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [error, setError] = useState('');
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
 
     useEffect(() => {
         axios.get('/users/users')
@@ -48,7 +48,7 @@ const ManageRolesPage = () => {
         }
     };
 
-    if (!role?.includes('ADMINISTRATOR')) return <div>No access</div>;
+    if (!roles.includes('MODERATOR')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>

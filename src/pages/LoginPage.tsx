@@ -25,11 +25,27 @@ const LoginPage = () => {
                 throw new Error('Access token not received');
             }
 
-            const { role } = res.data;
+            const payload = parseJwt(accessToken);
+            console.log("JWT Payload:", payload);
 
-            dispatch(setAuth({ accessToken, role }));
+            let roles: string[] = [];
+
+            if (Array.isArray(payload?.roles)) {
+                roles = payload.roles;
+            } else if (typeof payload?.role === 'string') {
+                roles = [payload.role];
+            }
+
+            if (!roles.length) throw new Error("Roles missing in JWT");
+
+
+            const preferredOrder = ['ADMINISTRATOR', 'MODERATOR', 'SUPPLIER', 'USER'];
+            const selectedRole = preferredOrder.find(role => roles.includes(role)) || roles[0];
+
+
+            dispatch(setAuth({ accessToken, roles }));
             localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('role', role);
+            localStorage.setItem('role', selectedRole);
             localStorage.setItem('login', login);
 
             navigate('/dashboard');
@@ -48,10 +64,25 @@ const LoginPage = () => {
     };
 
     return (
-        <form onSubmit={handleLogin} style={{ maxWidth: 400, margin: '5rem auto' }}>
-            <h2>Login</h2>
+        <form
+            onSubmit={handleLogin}
+            style={{
+                maxWidth: 400,
+                margin: '5rem auto',
+                padding: '2rem',
+                background: '#fff',
+                borderRadius: '12px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+            }}
+        >
+            <h2 style={{ textAlign: 'center' }}>Login</h2>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && (
+                <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>
+            )}
 
             <input
                 type="text"
@@ -59,7 +90,12 @@ const LoginPage = () => {
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 required
-                style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
+                style={{
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    fontSize: '1rem',
+                }}
             />
             <input
                 type="password"
@@ -67,20 +103,56 @@ const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 required
-                style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem' }}
+                style={{
+                    padding: '0.75rem',
+                    borderRadius: '6px',
+                    border: '1px solid #ccc',
+                    fontSize: '1rem',
+                }}
             />
-            <button type="submit" style={{ width: '100%', padding: '0.5rem' }}>
+            <button
+                type="submit"
+                style={{
+                    padding: '0.75rem',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                }}
+            >
                 Log In
             </button>
             <button
                 type="button"
                 onClick={() => navigate('/register')}
-                style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem', backgroundColor: '#eee' }}
+                style={{
+                    padding: '0.75rem',
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                }}
             >
-               Register
+                Register
             </button>
         </form>
     );
 };
+
+function parseJwt(token: string): any {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.padEnd(base64Url.length + (4 - base64Url.length % 4) % 4, '=');
+        const jsonPayload = atob(base64);
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error("JWT parsing failed:", e);
+        return null;
+    }
+}
 
 export default LoginPage;

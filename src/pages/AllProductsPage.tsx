@@ -13,7 +13,7 @@ type Product = {
 const AllProductsPage = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [error, setError] = useState('');
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
 
     const fetchProducts = async () => {
         try {
@@ -37,7 +37,7 @@ const AllProductsPage = () => {
         fetchProducts();
     }, []);
 
-    if (role !== 'MODERATOR') return <div>No access</div>;
+    if (!roles.includes('MODERATOR')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>

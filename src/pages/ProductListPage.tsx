@@ -16,7 +16,7 @@ const ProductListPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,7 +37,7 @@ const ProductListPage = () => {
     };
 
     if (loading) return <p>Loading products...</p>;
-    if (role !== 'SUPPLIER') return <div>No access</div>;
+    if (!roles.includes('MODERATOR')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>

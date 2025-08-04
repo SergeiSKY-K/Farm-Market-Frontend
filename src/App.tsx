@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAppDispatch } from './store/hooks';
 import { setAuth, logout } from './store/slices/authSlice';
 import axios from './api/axios';
+import { parseJwt } from './utils/parseJwt';
 
 
 import LoginPage from './pages/LoginPage';
@@ -25,15 +26,24 @@ function App() {
             try {
                 const response = await axios.post('/auth/refresh', {}, { withCredentials: true });
                 const accessToken = response.headers.authorization?.split(' ')[1];
-                const role = response.data.role;
 
-                if (accessToken && role) {
-                    dispatch(setAuth({ accessToken, role }));
-                }
+                if (!accessToken) throw new Error("No access token from refresh");
+
+                const payload = parseJwt(accessToken);
+                const roles = Array.isArray(payload?.roles)
+                    ? payload.roles
+                    : typeof payload?.role === 'string'
+                        ? [payload.role]
+                        : [];
+
+                if (!roles.length) throw new Error("Roles missing from JWT");
+
+                dispatch(setAuth({ accessToken, roles }));
             } catch {
                 dispatch(logout());
             }
         };
+
 
         void tryRefresh();
     }, [dispatch]);

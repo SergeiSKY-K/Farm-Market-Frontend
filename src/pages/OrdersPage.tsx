@@ -15,7 +15,7 @@ type Order = {
 };
 
 const OrdersPage = () => {
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
     const [orders, setOrders] = useState<Order[]>([]);
     const [error, setError] = useState('');
 
@@ -26,7 +26,7 @@ const OrdersPage = () => {
             .catch(() => setError('Error loading orders'));
     }, []);
 
-    if (role !== 'MODERATOR') return <div>No access</div>;
+    if (!roles.includes('MODERATOR')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>

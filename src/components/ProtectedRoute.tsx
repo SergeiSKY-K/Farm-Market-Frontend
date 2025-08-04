@@ -9,13 +9,13 @@ type Props = {
 
 const ProtectedRoute = ({ children, allowedRoles }: Props) => {
     const token = useAppSelector(state => state.auth.accessToken);
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles); // ⬅ здесь fix
 
     if (!token) {
         return <Navigate to="/" replace />;
     }
 
-    if (allowedRoles && !allowedRoles.includes(role ?? '')) {
+    if (allowedRoles && (!roles || !roles.some(r => allowedRoles.includes(r)))) {
         return <div>No access</div>;
     }
 

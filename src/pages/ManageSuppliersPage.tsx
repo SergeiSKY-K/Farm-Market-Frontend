@@ -12,7 +12,7 @@ type User = {
 const ManageSuppliersPage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [error, setError] = useState('');
-    const role = useAppSelector(state => state.auth.role);
+    const roles = useAppSelector(state => state.auth.roles);
 
     useEffect(() => {
         axios.get('/users/users')
@@ -46,7 +46,7 @@ const ManageSuppliersPage = () => {
         }
     };
 
-    if (role !== 'MODERATOR') return <div>No access</div>;
+    if (!roles.includes('MODERATOR')) return <div>No access</div>;
 
     return (
         <div style={{ padding: '2rem' }}>
